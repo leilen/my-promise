@@ -1,4 +1,4 @@
-import { MyPromise } from './my_promise.js';
+import MyPromise from './my_promise.js';
 
 const originPromiseTest = () => new Promise((resolve, reject) => {
   setTimeout(() => {
