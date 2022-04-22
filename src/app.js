@@ -1,24 +1,32 @@
 import MyPromise from './my_promise.js';
 
 const originPromiseTest = () => new Promise((resolve, reject) => {
+  // reject('testError');
   setTimeout(() => {
-    resolve();
+    // reject('testError');
+    console.log(111);
+    resolve('test');
+    // reject('testError');
   }, 1000);
 });
 
 const myPromiseTest = () => new MyPromise((resolve, reject) => {
+  reject('test error');
   setTimeout(() => {
-    resolve();
-  }, 1000);
+    // reject('e');
+    resolve('test');
+    // reject('e');
+  }, 2000);
 });
 
 const main = () => {
-  // originPromiseTest().then(() =>{
-  // console.log('fin')
-  // })
-  myPromiseTest().then(() => {
-    console.log('fin');
-  }).catch(() => {});
+  myPromiseTest().then((data) => {
+    console.log('then', data);
+  }).catch((e) => {
+    console.log('catch', e);
+  }).finally(() => {
+    console.log('finally');
+  });
 };
 
 main();
