@@ -115,4 +115,48 @@ export default class MyPromise {
       reject(value);
     });
   }
+
+  static all(iterable) {
+    const callResolve = (valueArr, resolve) => {
+      if (valueArr.every((v) => v.isFin)) {
+        resolve(valueArr.map((v) => v.value));
+      }
+    };
+    return new MyPromise((resolve, reject) => {
+      try {
+        const returnValueArr = iterable.map((_) => ({
+          isFin: false,
+          value: 0,
+        }));
+        iterable.forEach((v, i) => {
+          if (v instanceof Function) {
+            const resultOfFunction = v();
+            if (resultOfFunction.constructor === MyPromise) {
+              resultOfFunction.then((d) => {
+                returnValueArr[i] = {
+                  isFin: true,
+                  value: d,
+                };
+                callResolve(returnValueArr, resolve);
+              }).catch((e) => { reject(e); });
+            } else {
+              returnValueArr[i] = {
+                isFin: true,
+                value: v,
+              };
+              callResolve(returnValueArr, resolve);
+            }
+          } else {
+            returnValueArr[i] = {
+              isFin: true,
+              value: v,
+            };
+            callResolve(returnValueArr, resolve);
+          }
+        });
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
 }

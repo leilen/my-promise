@@ -7,9 +7,19 @@ const originPromiseTest = (p1) => new Promise((resolve, reject) => {
   }, 1000);
 });
 
-const myPromiseTest = (p1) => new MyPromise((resolve, reject) => {
+const myPromiseTest = (p1 = 0) => new MyPromise((resolve, reject) => {
   setTimeout(() => {
-    if (p1 === 30) {
+    if (p1 === 110) {
+      reject(`error ${p1}`);
+      return;
+    }
+    console.log('current', p1);
+    resolve(p1 + 1);
+  }, 2000);
+});
+const myPromiseTest2 = (p1 = 10) => new MyPromise((resolve, reject) => {
+  setTimeout(() => {
+    if (p1 === 10) {
       reject(`error ${p1}`);
       return;
     }
@@ -19,6 +29,22 @@ const myPromiseTest = (p1) => new MyPromise((resolve, reject) => {
 });
 
 const main = () => {
+  // Promise.all(1).then((d) => {
+  // console.log(d);
+  // });
+  //
+  MyPromise.all([myPromiseTest2, myPromiseTest, 3]).then((dataArr) => {
+    console.log('da', dataArr);
+  }).catch((e) => {
+    console.log('eeeee', e);
+  });
+  // MyPromise.all([1, 2, 3]).then((dataArr) => {
+  // console.log('da', dataArr);
+  // });
+  // Promise.all([1, () => 222, 3]).then((dataArr) => {
+  // console.log('da', dataArr);
+  // });
+
   // myPromiseTest(1).then(() => MyPromise.resolve('asd')).then((v) => {
   // console.log(v);
   // });
