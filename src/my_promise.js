@@ -1,4 +1,6 @@
 export default class MyPromise {
+  isForThen = false;
+
   resolveHandlerArr = [];
 
   rejectHandler;
@@ -6,6 +8,8 @@ export default class MyPromise {
   finallyHandler;
 
   error;
+
+  data;
 
   isResolved = false;
 
@@ -68,19 +72,24 @@ export default class MyPromise {
 
   executeResolve(data) {
     const popped = this.resolveHandlerArr.shift();
+    if (this.isForThen) {
+      this.data = data;
+    }
     if (popped) {
       const nextPromise = popped(data);
       if (nextPromise) {
         nextPromise.passHandlers(this);
-      } else {
-        this.executeFinally();
+        return;
       }
     }
+    this.executeFinally();
   }
 
   executeReJect(e) {
     if (this.rejectHandler) {
       this.rejectHandler(e);
+    } else if (this.isForThen) {
+      this.error = e;
     } else {
       throw e;
     }
@@ -102,18 +111,19 @@ export default class MyPromise {
     if (reason.constructor === MyPromise) {
       return reason;
     }
-    return new MyPromise((resolve) => {
+    const promise = new MyPromise((resolve) => {
       resolve(reason);
     });
+    promise.isForThen = true;
+    return promise;
   }
 
   static reject(value) {
-    if (value.constructor === MyPromise) {
-      return value;
-    }
-    return new MyPromise((_, reject) => {
+    const promise = new MyPromise((_, reject) => {
       reject(value);
     });
+    promise.isForThen = true;
+    return promise;
   }
 
   static all(iterable) {
@@ -127,13 +137,22 @@ export default class MyPromise {
       }
     };
     return new MyPromise((resolve, reject) => {
-      try {
-        const returnValueArr = iterable.map(() => ({
-          isFin: false,
-          value: 0,
-        }));
-        iterable.forEach((v, i) => {
-          if (v instanceof Function) {
+      const returnValueArr = iterable.map(() => ({
+        isFin: false,
+        value: 0,
+      }));
+      iterable.forEach((v, i) => {
+        try {
+          if (v.constructor === MyPromise) {
+            if (v.data) {
+              setValue(i, v.data, returnValueArr, resolve);
+            } else if (v.error) {
+              reject(v.error);
+            }
+            v.then((d) => {
+              setValue(i, d, returnValueArr, resolve);
+            }).catch((e) => { reject(e); });
+          } else if (v instanceof Function) {
             const resultOfFunction = v();
             if (resultOfFunction.constructor === MyPromise) {
               resultOfFunction.then((d) => {
@@ -145,10 +164,10 @@ export default class MyPromise {
           } else {
             setValue(i, v, returnValueArr, resolve);
           }
-        });
-      } catch (e) {
-        reject(e);
-      }
+        } catch (e) {
+          reject(e);
+        }
+      });
     });
   }
 }

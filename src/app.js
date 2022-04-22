@@ -29,11 +29,6 @@ const myPromiseTest2 = (p1 = 10) => new MyPromise((resolve, reject) => {
 });
 
 const main = () => {
-  MyPromise.all([myPromiseTest2, myPromiseTest, 3]).then((dataArr) => {
-    console.log('da', dataArr);
-  }).catch((e) => {
-    console.log('eeeee', e);
-  });
 };
 
 main();
