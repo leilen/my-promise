@@ -117,14 +117,18 @@ export default class MyPromise {
   }
 
   static all(iterable) {
-    const callResolve = (valueArr, resolve) => {
+    const setValue = (index, value, valueArr, resolve) => {
+      valueArr[index] = {
+        isFin: true,
+        value,
+      };
       if (valueArr.every((v) => v.isFin)) {
         resolve(valueArr.map((v) => v.value));
       }
     };
     return new MyPromise((resolve, reject) => {
       try {
-        const returnValueArr = iterable.map((_) => ({
+        const returnValueArr = iterable.map(() => ({
           isFin: false,
           value: 0,
         }));
@@ -133,25 +137,13 @@ export default class MyPromise {
             const resultOfFunction = v();
             if (resultOfFunction.constructor === MyPromise) {
               resultOfFunction.then((d) => {
-                returnValueArr[i] = {
-                  isFin: true,
-                  value: d,
-                };
-                callResolve(returnValueArr, resolve);
+                setValue(i, d, returnValueArr, resolve);
               }).catch((e) => { reject(e); });
             } else {
-              returnValueArr[i] = {
-                isFin: true,
-                value: v,
-              };
-              callResolve(returnValueArr, resolve);
+              setValue(i, v, returnValueArr, resolve);
             }
           } else {
-            returnValueArr[i] = {
-              isFin: true,
-              value: v,
-            };
-            callResolve(returnValueArr, resolve);
+            setValue(i, v, returnValueArr, resolve);
           }
         });
       } catch (e) {
