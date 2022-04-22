@@ -1,5 +1,5 @@
 export default class MyPromise {
-  resolveHandler;
+  resolveHandlerArr = [];
 
   rejectHandler;
 
@@ -12,29 +12,32 @@ export default class MyPromise {
   isExcuted = false;
 
   constructor(executor) {
-    setTimeout(() => {
-      try {
-        executor(this.resolver(), this.rejector());
-      } catch (e) {
-        this.executeReJect(e);
-        this.executeFinally();
-      }
-      this.isExcuted = true;
-    });
+    if (executor) {
+      setTimeout(() => {
+        try {
+          executor(this.resolver(), this.rejector());
+        } catch (e) {
+          this.executeReJect(e);
+          this.executeFinally();
+        }
+
+        this.isExcuted = true;
+      });
+    }
   }
 
-  then(inResolveHandler) {
-    this.resolveHandler = inResolveHandler;
+  then(func) {
+    this.resolveHandlerArr.push(func);
     return this;
   }
 
-  catch(inRejectHandler) {
-    this.rejectHandler = inRejectHandler;
+  catch(func) {
+    this.rejectHandler = func;
     return this;
   }
 
-  finally(inFinallyHandler) {
-    this.finallyHandler = inFinallyHandler;
+  finally(func) {
+    this.finallyHandler = func;
     return this;
   }
 
@@ -43,7 +46,6 @@ export default class MyPromise {
       if (!this.error) {
         this.isResolved = true;
         this.executeResolve(data);
-        this.executeFinally();
       }
     };
   }
@@ -62,8 +64,14 @@ export default class MyPromise {
   }
 
   executeResolve(data) {
-    if (this.resolveHandler) {
-      this.resolveHandler(data);
+    const popped = this.resolveHandlerArr.shift();
+    if (popped) {
+      const nextPromise = popped(data);
+      if (nextPromise) {
+        nextPromise.passHandlers(this);
+      } else {
+        this.executeFinally();
+      }
     }
   }
 
@@ -79,5 +87,11 @@ export default class MyPromise {
     if (this.finallyHandler) {
       this.finallyHandler();
     }
+  }
+
+  passHandlers(myPromise) {
+    this.resolveHandlerArr = myPromise.resolveHandlerArr;
+    this.rejectHandler = myPromise.rejectHandler;
+    this.finallyHandler = myPromise.finallyHandler;
   }
 }
