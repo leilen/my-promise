@@ -11,9 +11,10 @@ const originPromiseTest = () => new Promise((resolve, reject) => {
 });
 
 const myPromiseTest = () => new MyPromise((resolve, reject) => {
-  reject('test error');
+  // reject('test error');
   setTimeout(() => {
     // reject('e');
+    console.log('body');
     resolve('test');
     // reject('e');
   }, 2000);

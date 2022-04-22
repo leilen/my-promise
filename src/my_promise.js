@@ -16,8 +16,8 @@ export default class MyPromise {
       try {
         executor(this.resolver(), this.rejector());
       } catch (e) {
-        this.rejectHandler(e);
-        this.finallyHandler();
+        this.executeReJect(e);
+        this.executeFinally();
       }
       this.isExcuted = true;
     });
@@ -42,8 +42,8 @@ export default class MyPromise {
     return (data) => {
       if (!this.error) {
         this.isResolved = true;
-        this.resolveHandler(data);
-        this.finallyHandler();
+        this.executeResolve(data);
+        this.executeFinally();
       }
     };
   }
@@ -55,9 +55,29 @@ export default class MyPromise {
       }
       this.error = e;
       if (!this.isResolved) {
-        this.rejectHandler(e);
-        this.finallyHandler();
+        this.executeReJect(e);
+        this.executeFinally();
       }
     };
+  }
+
+  executeResolve(data) {
+    if (this.resolveHandler) {
+      this.resolveHandler(data);
+    }
+  }
+
+  executeReJect(e) {
+    if (this.rejectHandler) {
+      this.rejectHandler(e);
+    } else {
+      throw e;
+    }
+  }
+
+  executeFinally() {
+    if (this.finallyHandler) {
+      this.finallyHandler();
+    }
   }
 }
