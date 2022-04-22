@@ -26,8 +26,11 @@ export default class MyPromise {
     }
   }
 
-  then(func) {
+  then(func, rejectFunc) {
     this.resolveHandlerArr.push(func);
+    if (rejectFunc) {
+      this.rejectHandler = rejectFunc;
+    }
     return this;
   }
 
@@ -93,5 +96,23 @@ export default class MyPromise {
     this.resolveHandlerArr = myPromise.resolveHandlerArr;
     this.rejectHandler = myPromise.rejectHandler;
     this.finallyHandler = myPromise.finallyHandler;
+  }
+
+  static resolve(reason) {
+    if (reason.constructor === MyPromise) {
+      return reason;
+    }
+    return new MyPromise((resolve) => {
+      resolve(reason);
+    });
+  }
+
+  static reject(value) {
+    if (value.constructor === MyPromise) {
+      return value;
+    }
+    return new MyPromise((_, reject) => {
+      reject(value);
+    });
   }
 }
