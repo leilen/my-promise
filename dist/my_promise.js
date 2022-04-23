@@ -240,6 +240,117 @@ class MyPromise {
       });
     });
   }
+
+  static race(iterable) {
+    let isFin = false;
+    const setValue = (value, resolve) => {
+      if (isFin) {
+        return;
+      }
+      isFin = true;
+      resolve(value);
+    };
+    const customReject = (reject, e) => {
+      if (isFin) {
+        return;
+      }
+      isFin = true;
+      reject(e);
+    };
+    return new MyPromise((resolve, reject) => {
+      iterable.forEach((v) => {
+        try {
+          if (v.constructor === MyPromise) {
+            if (v.data) {
+              setValue(v.data, resolve);
+            } else if (v.error) {
+              throw v.error;
+            }
+            v.then((d) => {
+              setValue(d, resolve);
+            }).catch((e) => {
+              throw e;
+            });
+          } else if (v instanceof Function) {
+            const resultOfFunction = v();
+            if (resultOfFunction.constructor === MyPromise) {
+              resultOfFunction.then((d) => {
+                setValue(d, resolve);
+              }).catch((e) => {
+                customReject(reject, e);
+              });
+            } else {
+              setValue(v, resolve);
+            }
+          } else {
+            setValue(v, resolve);
+          }
+        } catch (e) {
+          customReject(reject, e);
+        }
+      });
+    });
+  }
+
+  static any(iterable) {
+    let isFin = false;
+    const setValue = (index, value, valueArr, resolve, reject, isRejected) => {
+      if (isFin) {
+        return;
+      }
+      valueArr[index] = {
+        isFin: true,
+        isRejected,
+        value,
+      };
+      if (!isRejected) {
+        isFin = true;
+        resolve(value);
+        return;
+      }
+      if (valueArr.every((v) => v.isFin)) {
+        reject(new AggregateError(iterable, 'No Promise in Promise.any was resolved'));
+      }
+    };
+    return new MyPromise((resolve, reject) => {
+      const returnValueArr = iterable.map(() => ({
+        isFin: false,
+        isRejected: false,
+        value: '',
+      }));
+      iterable.forEach((v, i) => {
+        try {
+          if (v.constructor === MyPromise) {
+            if (v.data) {
+              setValue(i, v.data, returnValueArr, resolve, reject, false);
+            } else if (v.error) {
+              setValue(i, null, returnValueArr, resolve, reject, true);
+            }
+            v.then((d) => {
+              setValue(i, d, returnValueArr, resolve, reject, false);
+            }).catch(() => {
+              setValue(i, null, returnValueArr, resolve, reject, true);
+            });
+          } else if (v instanceof Function) {
+            const resultOfFunction = v();
+            if (resultOfFunction.constructor === MyPromise) {
+              resultOfFunction.then((d) => {
+                setValue(i, d, returnValueArr, resolve, reject, false);
+              }).catch(() => {
+                setValue(i, null, returnValueArr, resolve, reject, true);
+              });
+            } else {
+              setValue(i, v, returnValueArr, resolve, reject, false);
+            }
+          } else {
+            setValue(i, v, returnValueArr, resolve, reject, false);
+          }
+        } catch (e) {
+          setValue(i, null, returnValueArr, resolve, reject, true);
+        }
+      });
+    });
+  }
 }
 
 try {

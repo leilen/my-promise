@@ -6,14 +6,24 @@ const countPromise = (p1 = 1) => new MyPromise((resolve, reject) => {
       reject(new Error(`Promise Error has occured - value: ${p1}`));
       return;
     }
-    console.log(`Count Promise: ${p1}/5`);
+    console.log(`---Count Promise: ${p1}/5`);
     resolve(p1 + 1);
   }, 100);
-}, 'c');
+});
+const countSlowPromise = (p1 = 3) => new MyPromise((resolve, reject) => {
+  setTimeout(() => {
+    if (p1 === 6) {
+      reject(new Error(`Promise Error has occured - value: ${p1}`));
+      return;
+    }
+    console.log(`---Count Promise: ${p1}/5`);
+    resolve(p1 + 1);
+  }, 400);
+});
 const countErrorPromise = () => new MyPromise((resolve, reject) => {
   setTimeout(() => {
     reject(new Error('Promise Error has occured '));
-  }, 1000);
+  }, 100);
 });
 const sleepPromise = (mis, message) => new MyPromise((resolve) => {
   setTimeout(() => {
@@ -96,6 +106,36 @@ const main = () => {
     }).finally(() => {
       console.log('Complete MyPromise.allSettled Example...');
     });
+  });
+  sleepPromise(9000, '\nStarting MyPromise.race Example...').then(() => {
+    MyPromise.race([countPromise, countSlowPromise, countErrorPromise, countPromise])
+      .then((valueArr) => {
+        console.log('Value of MyPromise.race: ', valueArr);
+      }).catch((e) => {
+        console.log('MyPromise.race Error', e);
+      }).finally(() => {
+        console.log('Complete MyPromise.race Example...');
+      });
+  });
+  sleepPromise(10000, '\nStarting MyPromise.any Example...').then(() => {
+    MyPromise.any([countPromise, countSlowPromise, countErrorPromise, countPromise])
+      .then((valueArr) => {
+        console.log('Value of MyPromise.any: ', valueArr);
+      }).catch((e) => {
+        console.log('MyPromise.any Error', e);
+      }).finally(() => {
+        console.log('Complete MyPromise.any Example...');
+      });
+  });
+  sleepPromise(11000, '\nStarting MyPromise.any Error Example...').then(() => {
+    MyPromise.any([countErrorPromise, countErrorPromise])
+      .then((valueArr) => {
+        console.log('Value of MyPromise.any Error (This function will not be executed) : ', valueArr);
+      }).catch((e) => {
+        console.log('MyPromise.any Error Error', e);
+      }).finally(() => {
+        console.log('Complete MyPromise.any Error Example...');
+      });
   });
 };
 
