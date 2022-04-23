@@ -183,17 +183,6 @@ class MyPromise {
             }).catch((e) => {
               throw e;
             });
-          } else if (v instanceof Function) {
-            const resultOfFunction = v();
-            if (resultOfFunction.constructor === MyPromise) {
-              resultOfFunction.then((d) => {
-                setValue(i, d, returnValueArr, resolve);
-              }).catch((e) => {
-                customReject(reject, e);
-              });
-            } else {
-              setValue(i, v, returnValueArr, resolve);
-            }
           } else {
             setValue(i, v, returnValueArr, resolve);
           }
@@ -205,10 +194,7 @@ class MyPromise {
   }
 
   static allSettled(iterable) {
-    const stateDic = {
-      resolve: 'fulfilled',
-      reject: 'rejected',
-    };
+    const { stateDic } = MyPromise;
     const setValue = (index, value, valueArr, resolve) => {
       valueArr[index] = {
         isFin: true,
@@ -236,17 +222,6 @@ class MyPromise {
             }).catch(() => {
               setValue(i, stateDic.reject, returnValueArr, resolve);
             });
-          } else if (v instanceof Function) {
-            const resultOfFunction = v();
-            if (resultOfFunction.constructor === MyPromise) {
-              resultOfFunction.then(() => {
-                setValue(i, stateDic.resolve, returnValueArr, resolve);
-              }).catch(() => {
-                setValue(i, stateDic.reject, returnValueArr, resolve);
-              });
-            } else {
-              setValue(i, stateDic.resolve, returnValueArr, resolve);
-            }
           } else {
             setValue(i, stateDic.resolve, returnValueArr, resolve);
           }
@@ -287,17 +262,6 @@ class MyPromise {
             }).catch((e) => {
               throw e;
             });
-          } else if (v instanceof Function) {
-            const resultOfFunction = v();
-            if (resultOfFunction.constructor === MyPromise) {
-              resultOfFunction.then((d) => {
-                setValue(d, resolve);
-              }).catch((e) => {
-                customReject(reject, e);
-              });
-            } else {
-              setValue(v, resolve);
-            }
           } else {
             setValue(v, resolve);
           }
@@ -347,17 +311,6 @@ class MyPromise {
             }).catch(() => {
               setValue(i, null, returnValueArr, resolve, reject, true);
             });
-          } else if (v instanceof Function) {
-            const resultOfFunction = v();
-            if (resultOfFunction.constructor === MyPromise) {
-              resultOfFunction.then((d) => {
-                setValue(i, d, returnValueArr, resolve, reject, false);
-              }).catch(() => {
-                setValue(i, null, returnValueArr, resolve, reject, true);
-              });
-            } else {
-              setValue(i, v, returnValueArr, resolve, reject, false);
-            }
           } else {
             setValue(i, v, returnValueArr, resolve, reject, false);
           }
@@ -367,6 +320,11 @@ class MyPromise {
       });
     });
   }
+
+  static stateDic = {
+    resolve: 'fulfilled',
+    reject: 'rejected',
+  };
 }
 
 try {
