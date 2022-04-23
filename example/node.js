@@ -91,7 +91,7 @@ const main = () => {
   });
 
   sleepPromise(7000, '\nStarting MyPromise.all Error Example...').then(() => {
-    MyPromise.all([countPromise, countErrorPromise, countPromise, countPromise]).then((valueArr) => {
+    MyPromise.all([countPromise(1), countErrorPromise(1), countPromise(1), countPromise(1)]).then((valueArr) => {
       console.log('Value of MyPromise.all Error(This will not be executed)', valueArr);
     }).catch((e) => {
       console.log('MyPromise.all Error', e);
