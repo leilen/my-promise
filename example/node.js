@@ -1,4 +1,4 @@
-import Promise from '../src/my_promise.js';
+const { Promise } = require('../src/my_promise.js');
 
 const countPromise = (p1 = 1) => new Promise((resolve, reject) => {
   setTimeout(() => {
@@ -51,7 +51,7 @@ const main = () => {
   });
 
   sleepPromise(4000, '\nStarting Promise.resolve(Promise) Example...').then(() => {
-    Promise.resolve(countPromise).finally(() => {
+    Promise.resolve(countPromise()).finally(() => {
       console.log('Complete Promise.resolve(Promise) Example...');
     });
   });
@@ -67,11 +67,12 @@ const main = () => {
   });
 
   sleepPromise(6000, '\nStarting Promise.all Example...').then(() => {
-    Promise.all([countPromise, countPromise, countPromise, countPromise]).then((valueArr) => {
-      console.log('Value of Promise.all', valueArr);
-    }).finally(() => {
-      console.log('Complete Promise.all Example...');
-    });
+    Promise.all([countPromise, countPromise, countPromise, countPromise, Promise.resolve(100)])
+      .then((valueArr) => {
+        console.log('Value of Promise.all', valueArr);
+      }).finally(() => {
+        console.log('Complete Promise.all Example...');
+      });
   });
 
   sleepPromise(7000, '\nStarting Promise.all Error Example...').then(() => {

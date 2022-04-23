@@ -1,4 +1,4 @@
-export default class MyPromise {
+class MyPromise {
   isForThen = false;
 
   resolveHandlerArr = [];
@@ -171,3 +171,7 @@ export default class MyPromise {
     });
   }
 }
+
+try {
+  exports.Promise = MyPromise;
+} catch (e) {}
