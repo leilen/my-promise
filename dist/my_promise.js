@@ -1,3 +1,19 @@
+/**
+ * Implemented Promise class.
+ *
+ * Methods
+ * ● new Promise(executor)
+ * ● Promise.prototype.then(func)
+ * ● Promise.prototype.catch(func)
+ * ● Promise.prototype.finally(func)
+ * ● Promise.resolve(reason)
+ * ● Promise.reject(value)
+ * ● Promise.all(iterable)
+ * ● Promise.allSettled(iterable)
+ * ● Promise.any(iterable)
+ * ● Promise.race(iterable)
+ *
+*/
 class MyPromise {
   isForThen = false;
 
