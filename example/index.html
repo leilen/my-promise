@@ -15,6 +15,11 @@
           resolve(p1 + 1);
         }, 100);
       });
+      const countErrorPromise = () => new MyPromise((resolve, reject) => {
+        setTimeout(() => {
+          reject(new Error('Promise Error has occured '));
+        }, 1000);
+      });
       const sleepPromise = (mis, message) => new MyPromise((resolve) => {
         setTimeout(() => {
           console.log(message);
@@ -87,6 +92,14 @@
             console.log('Promise.all Error', e);
           }).finally(() => {
             console.log('Complete Promise.all Error Example...');
+          });
+        });
+
+        sleepPromise(8000, '\nStarting MyPromise.allSettled Example...').then(() => {
+          MyPromise.allSettled([countPromise, countErrorPromise, countPromise, MyPromise.resolve(1), MyPromise.reject(new Error('all Error'))]).then((valueArr) => {
+            console.log('Value of MyPromise.allSettled: ', valueArr);
+          }).finally(() => {
+            console.log('Complete MyPromise.allSettled Example...');
           });
         });
       };

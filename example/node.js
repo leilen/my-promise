@@ -14,7 +14,7 @@ const countErrorPromise = () => new MyPromise((resolve, reject) => {
   setTimeout(() => {
     reject(new Error('Promise Error has occured '));
   }, 1000);
-}, 'ce');
+});
 const sleepPromise = (mis, message) => new MyPromise((resolve) => {
   setTimeout(() => {
     console.log(message);
