@@ -2,13 +2,13 @@
   "name": "my-promise",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "dist/my_promise.js",
   "scripts": {
     "start":"node ./src/app.js",
     "example:node":"node ./example/node.js",
     "example:web":"open -a \"Google Chrome\" ./example/index.html"
   },
-  "author": "",
+  "author": "Jin hyeok Yu <leilen@naver.com>",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {

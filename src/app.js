@@ -1,4 +1,4 @@
-import MyPromise from './my_promise.js';
+const { MyPromise } = require('../dist/my_promise.js');
 
 const originPromiseTest = (p1) => new Promise((resolve, reject) => {
   setTimeout(() => {

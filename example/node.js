@@ -1,4 +1,4 @@
-const { Promise } = require('../src/my_promise.js');
+const { Promise } = require('../dist/my_promise.js');
 
 const countPromise = (p1 = 1) => new Promise((resolve, reject) => {
   setTimeout(() => {
