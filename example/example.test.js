@@ -65,6 +65,15 @@ test('Promise Single', (done) => {
       });
   });
 });
+test('Promise Single Error', (done) => {
+  originCountErrorPromise(1).catch((oe) => {
+    countErrorPromise(1).catch((e) => {
+      expect(oe).toEqual(e);
+      done();
+    });
+  });
+});
+
 test('Promise chain', (done) => {
   originCountPromise().then(originCountPromise).then(originCountPromise).then(originCountPromise)
     .then((od) => {
@@ -112,6 +121,15 @@ test('MyPromise.resolve(value)', (done) => {
   });
 });
 
+test('MyPromise.resolve(promise)', (done) => {
+  Promise.resolve(originCountPromise(1)).then((od) => {
+    MyPromise.resolve(countPromise(1)).then((d) => {
+      expect(od).toEqual(d);
+      done();
+    });
+  });
+});
+
 test('MyPromise.reject(value)', (done) => {
   const errorSample = new Error('reject value');
   Promise.reject(errorSample).then((od) => {
@@ -139,62 +157,67 @@ test('MyPromise.all Error', (done) => {
   Promise.all([originCountPromise(1), originCountErrorPromise(1), originCountPromise(1), originCountPromise(1)]).then((oValueArr) => {
     console.log('Value of MyPromise.all Error(This will not be executed)', oValueArr);
   }).catch((oe) => {
-    console.log(1111,oe)
     MyPromise.all([countPromise(1), countErrorPromise(1), countPromise(1), countPromise(1)]).then((valueArr) => {
       console.log('Value of MyPromise.all Error(This will not be executed)', valueArr);
     }).catch((e) => {
-      console.log(2222,e)
       expect(e).toEqual(oe);
       done();
     });
   });
 });
 
-// test('MyPromise.allSettled', (done) => {
-// const errorSample = new Error('all Error');
-// const { resolve, reject } = MyPromise.stateDic;
-// MyPromise.allSettled([countPromise, countErrorPromise, countPromise, MyPromise.resolve(1), MyPromise.reject(errorSample)]).then((valueArr) => {
-// console.log('Value of MyPromise.allSettled: ', valueArr);
-// expect(valueArr).toEqual([resolve, reject, resolve, resolve, reject]);
-// done();
-// }).finally(() => {
-// console.log('Complete MyPromise.allSettled Example...');
-// });
-// });
-// test('MyPromise.race', (done) => {
-// MyPromise.race([countPromise, countSlowPromise, countPromise])
-// .then((value) => {
-// console.log('Value of MyPromise.race: ', value);
-// expect(value).toEqual(2);
-// done();
-// }).catch((e) => {
-// console.log('MyPromise.race Error', e);
-// }).finally(() => {
-// console.log('Complete MyPromise.race Example...');
-// });
-// });
-// test('MyPromise.any Example...', (done) => {
-// MyPromise.any([countPromise, countSlowPromise, countErrorPromise, countPromise])
-// .then((value) => {
-// console.log('Value of MyPromise.any: ', value);
-// expect(value).toEqual(2);
-// done();
-// }).catch((e) => {
-// console.log('MyPromise.any Error', e);
-// }).finally(() => {
-// console.log('Complete MyPromise.any Example...');
-// });
-// });
-// test('MyPromise.any Error Example...', (done) => {
-// const iterable = [countErrorPromise, countErrorPromise];
-// MyPromise.any(iterable)
-// .then((valueArr) => {
-// console.log('Value of MyPromise.any Error (This function will not be executed) : ', valueArr);
-// }).catch((e) => {
-// console.log('MyPromise.any Error Error', e);
-// expect(e).toEqual(new AggregateError(iterable, 'No Promise in Promise.any was resolved'));
-// done();
-// }).finally(() => {
-// console.log('Complete MyPromise.any Error Example...');
-// });
-// });
+test('MyPromise.allSettled', (done) => {
+  const errorSample = new Error('all Error');
+  Promise.allSettled([originCountPromise(1), originCountErrorPromise(1), originCountPromise(1), Promise.resolve(1), Promise.reject(errorSample)]).then((oValueArr) => {
+    MyPromise.allSettled([countPromise(1), countErrorPromise(1), countPromise(1), MyPromise.resolve(1), MyPromise.reject(errorSample)]).then((valueArr) => {
+      expect(valueArr).toEqual(oValueArr);
+      done();
+    });
+  });
+});
+
+test('MyPromise.race', (done) => {
+  Promise.race([originCountPromise(1), originCountSlowPromise(1), originCountPromise(1)])
+    .then((od) => {
+      MyPromise.race([countPromise(1), countSlowPromise(1), countPromise(1)])
+        .then((d) => {
+          expect(od).toEqual(d);
+          done();
+        });
+    });
+});
+
+test('MyPromise.race Error', (done) => {
+  Promise.race([originCountSlowPromise(1), originCountErrorPromise(1)])
+    .catch((oe) => {
+      MyPromise.race([countSlowPromise(1), countErrorPromise(1)])
+        .catch((e) => {
+          expect(oe).toEqual(e);
+          done();
+        });
+    });
+});
+
+test('MyPromise.any', (done) => {
+  Promise.any([originCountPromise(1), originCountSlowPromise(1), originCountErrorPromise(1), originCountPromise(1)])
+    .then((od) => {
+      MyPromise.any([countPromise(1), countSlowPromise(1), countErrorPromise(1), countPromise(1)])
+        .then((d) => {
+          expect(od).toEqual(d);
+          done();
+        });
+    });
+});
+
+test('MyPromise.any Error', (done) => {
+  Promise.any([originCountErrorPromise(1), originCountErrorPromise(1)])
+    .then((oValueArr) => {
+    }).catch((oe) => {
+      MyPromise.any([countErrorPromise(1), countErrorPromise(1)])
+        .then((valueArr) => {
+        }).catch((e) => {
+          expect(oe.constructor).toEqual(e.constructor);
+          done();
+        });
+    });
+});

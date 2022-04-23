@@ -82,7 +82,7 @@ const main = () => {
   });
 
   sleepPromise(6000, '\nStarting MyPromise.all Example...').then(() => {
-    MyPromise.all([countPromise, countPromise, countPromise, countPromise, MyPromise.resolve(100)])
+    MyPromise.all([countPromise(1), countPromise(1), countPromise(1), countPromise(1), MyPromise.resolve(100)])
       .then((valueArr) => {
         console.log('Value of MyPromise.all', valueArr);
       }).finally(() => {
@@ -101,14 +101,14 @@ const main = () => {
   });
 
   sleepPromise(8000, '\nStarting MyPromise.allSettled Example...').then(() => {
-    MyPromise.allSettled([countPromise, countErrorPromise, countPromise, MyPromise.resolve(1), MyPromise.reject(new Error('all Error'))]).then((valueArr) => {
+    MyPromise.allSettled([countPromise(1), countErrorPromise(1), countPromise(1), MyPromise.resolve(1), MyPromise.reject(new Error('all Error'))]).then((valueArr) => {
       console.log('Value of MyPromise.allSettled: ', valueArr);
     }).finally(() => {
       console.log('Complete MyPromise.allSettled Example...');
     });
   });
   sleepPromise(9000, '\nStarting MyPromise.race Example...').then(() => {
-    MyPromise.race([countPromise, countSlowPromise, countErrorPromise, countPromise])
+    MyPromise.race([countPromise(1), countSlowPromise(1), countErrorPromise(1), countPromise(1)])
       .then((valueArr) => {
         console.log('Value of MyPromise.race: ', valueArr);
       }).catch((e) => {
@@ -118,7 +118,7 @@ const main = () => {
       });
   });
   sleepPromise(10000, '\nStarting MyPromise.any Example...').then(() => {
-    MyPromise.any([countPromise, countSlowPromise, countErrorPromise, countPromise])
+    MyPromise.any([countPromise(1), countSlowPromise(1), countErrorPromise(1), countPromise(1)])
       .then((valueArr) => {
         console.log('Value of MyPromise.any: ', valueArr);
       }).catch((e) => {
@@ -128,7 +128,7 @@ const main = () => {
       });
   });
   sleepPromise(11000, '\nStarting MyPromise.any Error Example...').then(() => {
-    MyPromise.any([countErrorPromise, countErrorPromise])
+    MyPromise.any([countErrorPromise(1), countErrorPromise(1)])
       .then((valueArr) => {
         console.log('Value of MyPromise.any Error (This function will not be executed) : ', valueArr);
       }).catch((e) => {

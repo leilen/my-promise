@@ -181,7 +181,7 @@ class MyPromise {
             v.then((d) => {
               setValue(i, d, returnValueArr, resolve);
             }).catch((e) => {
-              throw e;
+              customReject(reject, e);
             });
           } else {
             setValue(i, v, returnValueArr, resolve);
@@ -195,13 +195,17 @@ class MyPromise {
 
   static allSettled(iterable) {
     const { stateDic } = MyPromise;
-    const setValue = (index, value, valueArr, resolve) => {
+    const setValue = (index, value, valueArr, resolve, isRejected) => {
       valueArr[index] = {
         isFin: true,
-        value,
+        status: isRejected ? stateDic.reject : stateDic.resolve,
       };
+      valueArr[index][isRejected ? 'reason' : 'value'] = value;
       if (valueArr.every((v) => v.isFin)) {
-        resolve(valueArr.map((v) => v.value));
+        resolve(valueArr.map((v) => {
+          delete v.isFin;
+          return v;
+        }));
       }
     };
     return new MyPromise((resolve) => {
@@ -213,20 +217,20 @@ class MyPromise {
         try {
           if (v.constructor === MyPromise) {
             if (v.data) {
-              setValue(i, stateDic.resolve, returnValueArr, resolve);
+              setValue(i, v.data, returnValueArr, resolve, false);
             } else if (v.error) {
-              setValue(i, stateDic.reject, returnValueArr, resolve);
+              setValue(i, v.error, returnValueArr, resolve, true);
             }
-            v.then(() => {
-              setValue(i, stateDic.resolve, returnValueArr, resolve);
-            }).catch(() => {
-              setValue(i, stateDic.reject, returnValueArr, resolve);
+            v.then((d) => {
+              setValue(i, d, returnValueArr, resolve, false);
+            }).catch((e) => {
+              setValue(i, e, returnValueArr, resolve, true);
             });
           } else {
-            setValue(i, stateDic.resolve, returnValueArr, resolve);
+            setValue(i, v, returnValueArr, resolve, false);
           }
         } catch (e) {
-          setValue(i, stateDic.reject, returnValueArr, resolve);
+          setValue(i, e, returnValueArr, resolve, true);
         }
       });
     });
@@ -260,7 +264,7 @@ class MyPromise {
             v.then((d) => {
               setValue(d, resolve);
             }).catch((e) => {
-              throw e;
+              customReject(reject, e);
             });
           } else {
             setValue(v, resolve);

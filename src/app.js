@@ -1,48 +1,62 @@
 const { MyPromise } = require('../dist/my_promise.js');
 
-const originPromiseTest = (p1) => new Promise((resolve, reject) => {
+const countPromiseError = new Error('Promise Error has occured ');
+
+const originCountPromise = (p1 = 1) => new Promise((resolve, reject) => {
   setTimeout(() => {
-    console.log('current', p1);
+    if (p1 === 6) {
+      reject(new Error(`Promise Error has occured - value: ${p1}`));
+      return;
+    }
+    console.log(`---Count Promise: ${p1}/5`);
     resolve(p1 + 1);
-  }, 1000);
+  }, 10);
 });
-const originPromiseSlowTest = (p1) => new Promise((resolve, reject) => {
+const originCountSlowPromise = (p1 = 3) => new Promise((resolve, reject) => {
   setTimeout(() => {
-    console.log('current', p1);
+    if (p1 === 6) {
+      reject(new Error(`Promise Error has occured - value: ${p1}`));
+      return;
+    }
+    console.log(`---Count Promise: ${p1}/5`);
     resolve(p1 + 1);
-  }, 5000);
+  }, 400);
 });
 
-const myPromiseTest = (p1 = 0) => new MyPromise((resolve, reject) => {
+const originCountErrorPromise = () => new Promise((resolve, reject) => {
   setTimeout(() => {
-    if (p1 === 110) {
-      reject(`error ${p1}`);
-      return;
-    }
-    console.log('current', p1);
-    resolve(p1 + 1);
-  }, 2000);
+    reject(countPromiseError);
+  }, 100);
 });
-const myPromiseTest2 = (p1 = 10) => new MyPromise((resolve, reject) => {
+
+const countPromise = (p1 = 1) => new MyPromise((resolve, reject) => {
   setTimeout(() => {
-    if (p1 === 100) {
-      reject(`error ${p1}`);
+    if (p1 === 6) {
+      reject(new Error(`Promise Error has occured - value: ${p1}`));
       return;
     }
-    console.log('current', p1);
+    console.log(`---Count Promise: ${p1}/5`);
     resolve(p1 + 1);
-  }, 2000);
+  }, 10);
+});
+const countSlowPromise = (p1 = 3) => new MyPromise((resolve, reject) => {
+  setTimeout(() => {
+    if (p1 === 6) {
+      reject(new Error(`Promise Error has occured - value: ${p1}`));
+      return;
+    }
+    console.log(`---Count Promise: ${p1}/5`);
+    resolve(p1 + 1);
+  }, 400);
+});
+
+const countErrorPromise = () => new MyPromise((resolve, reject) => {
+  setTimeout(() => {
+    reject(countPromiseError);
+  }, 100);
 });
 
 const main = () => {
-  MyPromise.any([myPromiseTest, myPromiseTest])
-    .then((value) => {
-      console.log('Value of MyPromise.race: ', value);
-    }).catch((e) => {
-      console.log('MyPromise.race Error', e);
-    }).finally(() => {
-      console.log('Complete MyPromise.race Example...');
-    });
 };
 
 main();
