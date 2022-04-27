@@ -53,10 +53,26 @@ const countSlowPromise = (p1 = 3) => new MyPromise((resolve, reject) => {
 const countErrorPromise = () => new MyPromise((resolve, reject) => {
   setTimeout(() => {
     reject(countPromiseError);
-  }, 100);
+  }, 1000);
 });
 
+const test = (resolve, reject) => {
+  setTimeout(() => {
+    console.log('tf');
+    resolve(1111);
+  }, 1000);
+};
+const testReject = (resolve, reject) => {
+  setTimeout(() => {
+    reject(new Error('test Error'));
+  }, 1000);
+};
 const main = () => {
+  MyPromise.allSync([test, test, testReject, test]).then((resultArr) => {
+    console.log('r', resultArr);
+  }).catch((e) => {
+    console.log('e', e);
+  });
 };
 
 main();

@@ -97,7 +97,14 @@ class MyPromise {
     if (popped) {
       const nextPromise = popped(data);
       if (nextPromise) {
-        nextPromise.passHandlers(this);
+        if (nextPromise.constructor === MyPromise) {
+          nextPromise.passHandlers(this);
+          return;
+        }
+        const tempP = new MyPromise((resolve) => {
+          resolve(nextPromise);
+        });
+        tempP.passHandlers(this);
         return;
       }
     }
@@ -190,6 +197,29 @@ class MyPromise {
           customReject(reject, e);
         }
       });
+    });
+  }
+
+  static allSync(funcArr) {
+    const EMPTY = 'Aajsildjliajs';
+    const resultArr = [];
+    return new MyPromise((rootResolve, rootReject) => {
+      const tr = (d) => {
+        if (d !== EMPTY) {
+          resultArr.push(d);
+        }
+        const currentFunc = funcArr.shift();
+        if (currentFunc) {
+          try {
+            currentFunc(tr, rootReject);
+          } catch (e) {
+            rootReject(e);
+          }
+        } else {
+          rootResolve(resultArr);
+        }
+      };
+      tr(EMPTY);
     });
   }
 
